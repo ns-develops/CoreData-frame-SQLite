@@ -4,15 +4,45 @@
 //
 //  Created by Natalie S on 2025-05-03.
 //
-
 import SwiftUI
+import CoreData
 
 struct ShopListView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
-    }
-}
+    @Environment(\.managedObjectContext) private var viewContext
 
-#Preview {
-    ShopListView()
+    @FetchRequest(
+        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
+        predicate: NSPredicate(format: "name BEGINSWITH %@", "m"),
+        animation: .default
+    )
+    private var items: FetchedResults<Item>
+
+    var body: some View {
+        List {
+            ForEach(items) { item in
+                HStack {
+                    if let name = item.name {
+                        Text(name)
+                    }
+                    Button(action:{}) {
+                        Image(systemName: item.done ? "checkmark.square" : "square")
+                    }
+                }
+            }
+            .onDelete(perform: deleteItems)
+        }
+    }
+
+    private func deleteItems(offsets: IndexSet) {
+        withAnimation {
+            offsets.map { items[$0] }.forEach(viewContext.delete)
+
+            do {
+                try viewContext.save()
+            } catch {
+                let nsError = error as NSError
+                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+            }
+        }
+    }
 }
