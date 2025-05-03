@@ -10,20 +10,27 @@ import CoreData
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
-
+    
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        animation: .default)
+        //predicate: NSPredicate(format: "done == %d", true),
+        predicate: NSPredicate(format: "name BEGINSWITH %@", "m"),
+        animation: .default
+    )
     private var items: FetchedResults<Item>
 
     var body: some View {
         NavigationView {
             List {
                 ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp!, formatter: itemFormatter)")
-                    } label: {
-                        Text(item.timestamp!, formatter: itemFormatter)
+                    HStack {
+                        if let name = item.name {
+                            Text(name)
+                        }
+                            Button(action:{}) {
+                                Image(systemName: item.done ? "checkmark.square" : "square")
+                 
+                            }
                     }
                 }
                 .onDelete(perform: deleteItems)
@@ -46,6 +53,8 @@ struct ContentView: View {
         withAnimation {
             let newItem = Item(context: viewContext)
             newItem.timestamp = Date()
+            newItem.name = "gurka"
+            newItem.done = true
 
             do {
                 try viewContext.save()
