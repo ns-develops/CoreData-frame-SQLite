@@ -10,13 +10,29 @@ import CoreData
 struct ShopListView: View {
     @Environment(\.managedObjectContext) private var viewContext
 
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
-        predicate: NSPredicate(format: "name BEGINSWITH %@", "m"),
-        animation: .default
-    )
+   // @FetchRequest(
+        //sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
+       // predicate: NSPredicate(format: "name BEGINSWITH %@", "m"),
+       // animation: .default)
+    
+    @FetchRequest
     private var items: FetchedResults<Item>
-
+    
+    init(filter: String) {
+        if filter == "" {
+            _items = FetchRequest<Item>(
+                sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp,
+                                                   ascending: true)]
+            )
+        } else {
+            _items = FetchRequest<Item>(
+                sortDescriptors: [NSSortDescriptor(keyPath: \Item.timestamp, ascending: true)],
+                predicate: NSPredicate(format: "name BEGINSWITH[c] %@", filter)
+                
+            )
+            
+        }
+    }
     var body: some View {
         List {
             ForEach(items) { item in

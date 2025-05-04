@@ -10,11 +10,13 @@ import CoreData
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
+    @State var filterText : String  = ""
 
     var body: some View {
         NavigationView {
             VStack {
-                ShopListView()
+                TextField("Search", text: $filterText)
+                ShopListView(filter: filterText)
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -36,7 +38,7 @@ struct ContentView: View {
         withAnimation {
             let newItem = Item(context: viewContext)
             newItem.timestamp = Date()
-            newItem.name = "gurka"
+            newItem.name = ""
             newItem.done = true
 
             do {
